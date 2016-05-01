@@ -52,7 +52,8 @@ main(int argc, char * argv[])
     return usage(argc, argv);
 
   PointCloud pcloud;
-  if (!pcloud.load(in_path))
+  //if (!pcloud.load(in_path))
+  if (!pcloud.loadISM_BIN(in_path))
     return -1;
 
   DGP_CONSOLE << "Read " << pcloud.numPoints() << " points from " << in_path;

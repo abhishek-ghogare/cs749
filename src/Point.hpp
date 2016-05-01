@@ -8,10 +8,13 @@
 class Point
 {
   private:
-    Vector3 position;
-    Vector3 normal;
 
   public:
+    Vector3 position;
+    Vector3 normal;
+    int64 label_index;
+    int64 object_index;
+
     /** Default constructor. */
     Point() {}
 

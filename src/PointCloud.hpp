@@ -67,6 +67,8 @@ class PointCloud
      */
     void adaptiveDownsample();
 
+    bool loadISM_BIN(std::string const & path_);
+
   private:
     /** Recompute the bounding box. */
     void recomputeAABB();

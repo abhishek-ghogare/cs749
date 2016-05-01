@@ -291,3 +291,67 @@ PointCloud::adaptiveDownsample()
 {
   // TODO
 }
+
+
+bool
+PointCloud::loadISM_BIN(std::string const & path_)
+{
+  clear();
+
+  // Do loading
+  BinaryInputStream in(path_, Endianness::LITTLE);
+
+  long nlabels = in.readInt64();
+  long nobjects = in.readInt64();
+  long npoints = in.readInt64();
+
+  DGP_CONSOLE << "PointCloud: '" << path_ << "' has " << npoints << " points, " << nlabels << " labels and " << nobjects
+               << " objects";
+
+  points.resize((size_t)npoints);
+  int num_features = 0;
+  std::vector<float32> features;
+
+  for (int i = 0; i < points.size(); ++i)
+  {
+    Point & p = points[i];
+
+    p.label_index = in.readInt64();
+    p.object_index = in.readInt64();
+
+    p.position[0] = in.readFloat32();
+    p.position[1] = in.readFloat32();
+    p.position[2] = in.readFloat32();
+
+    p.normal[0] = in.readFloat32();
+    p.normal[1] = in.readFloat32();
+    p.normal[2] = in.readFloat32();
+
+    Real height = in.readFloat32();
+    Real f12 = in.readFloat32();
+    Real f13 = in.readFloat32();
+    Real f23 = in.readFloat32();
+
+    int nfeatures = 4 + in.readInt32();  // 4 for height and three covariance ratios
+    if (i == 0)
+    {
+      num_features = nfeatures;
+      //features.resize(npoints, nfeatures);
+    }
+    else if (num_features != nfeatures)
+    {
+      DGP_ERROR << "PointCloud: Inconsistent number of features in " << path_;
+      return false;
+    }
+/*
+    features(i, 0) = height;
+    features(i, 1) = f12;
+    features(i, 2) = f13;
+    features(i, 3) = f23;*/
+
+    for (int j = 4; j < nfeatures; ++j)
+      /*features(i, j) = */in.readFloat32();
+  }
+
+  return true;
+}
