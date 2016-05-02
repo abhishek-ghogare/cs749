@@ -1,5 +1,7 @@
 #include "PointCloud.hpp"
 #include "Viewer.hpp"
+#include <iostream>
+#include <string>
 
 int
 usage(int argc, char * argv[])
@@ -52,8 +54,9 @@ main(int argc, char * argv[])
     return usage(argc, argv);
 
   PointCloud pcloud;
-  //if (!pcloud.load(in_path))
-  if (!pcloud.loadISM_BIN(in_path))
+  if (in_path.substr(in_path.find_last_of(".") + 1) != "bin" && !pcloud.load(in_path))
+	  return -1;
+  if (in_path.substr(in_path.find_last_of(".") + 1) == "bin" && !pcloud.loadISM_BIN(in_path))
     return -1;
 
   DGP_CONSOLE << "Read " << pcloud.numPoints() << " points from " << in_path;
