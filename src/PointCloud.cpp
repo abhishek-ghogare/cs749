@@ -310,7 +310,6 @@ PointCloud::loadISM_BIN(std::string const & path_)
 
   points.resize((size_t)npoints);
   int num_features = 0;
-  std::vector<float32> features;
 
   for (int i = 0; i < points.size(); ++i)
   {
@@ -336,21 +335,22 @@ PointCloud::loadISM_BIN(std::string const & path_)
     if (i == 0)
     {
       num_features = nfeatures;
-      //features.resize(npoints, nfeatures);
     }
     else if (num_features != nfeatures)
     {
       DGP_ERROR << "PointCloud: Inconsistent number of features in " << path_;
       return false;
     }
-/*
-    features(i, 0) = height;
-    features(i, 1) = f12;
-    features(i, 2) = f13;
-    features(i, 3) = f23;*/
+
+    p.features.resize(nfeatures);
+
+    p.features[0] = height;
+    p.features[1] = f12;
+    p.features[2] = f13;
+    p.features[3] = f23;
 
     for (int j = 4; j < nfeatures; ++j)
-      /*features(i, j) = */in.readFloat32();
+      p.features[j] = in.readFloat32();
   }
 
   return true;
