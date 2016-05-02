@@ -15,6 +15,8 @@ class PointCloud
   private:
     std::vector<Point> points;
     AxisAlignedBox3 bbox;
+    int64 nlabels;
+    int64 nobjects;
 
   public:
     /** Default constructor. */
@@ -68,6 +70,7 @@ class PointCloud
     void adaptiveDownsample();
 
     bool loadISM_BIN(std::string const & path_);
+    bool extract_objects(std::string const & out_dir_path);
 
   private:
     /** Recompute the bounding box. */

@@ -56,10 +56,15 @@ main(int argc, char * argv[])
   PointCloud pcloud;
   if (in_path.substr(in_path.find_last_of(".") + 1) != "bin" && !pcloud.load(in_path))
 	  return -1;
-  if (in_path.substr(in_path.find_last_of(".") + 1) == "bin" && !pcloud.loadISM_BIN(in_path))
-    return -1;
+  if (in_path.substr(in_path.find_last_of(".") + 1) == "bin" )
+	  if (!pcloud.loadISM_BIN(in_path))
+		  return -1;
+	  else
+		  pcloud.extract_objects("/tmp/objects");
 
   DGP_CONSOLE << "Read " << pcloud.numPoints() << " points from " << in_path;
+
+
 
   if (normals)
     pcloud.estimateNormals();

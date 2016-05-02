@@ -301,8 +301,8 @@ PointCloud::loadISM_BIN(std::string const & path_)
   // Do loading
   BinaryInputStream in(path_, Endianness::LITTLE);
 
-  long nlabels = in.readInt64();
-  long nobjects = in.readInt64();
+  nlabels = in.readInt64();
+  nobjects = in.readInt64();
   long npoints = in.readInt64();
 
   DGP_CONSOLE << "PointCloud: '" << path_ << "' has " << npoints << " points, " << nlabels << " labels and " << nobjects
@@ -354,4 +354,27 @@ PointCloud::loadISM_BIN(std::string const & path_)
   }
 
   return true;
+}
+
+
+bool
+PointCloud::extract_objects(std::string const & out_dir_path)
+{
+	std::vector<PointCloud> objects(nobjects);
+
+
+	DGP_CONSOLE << "Extracting "<< nobjects << " objects from point cloud" ;
+
+	for ( int i=0 ; i<points.size() ; i++) {
+		objects[int(points[i].object_index)].addPoint(points[i]);
+	}
+
+	DGP_CONSOLE << "Objects extracted from point cloud, now saving to files" ;
+	for ( int i=0 ; i<nobjects ; i++ ) {
+		std::ostringstream oss;
+		oss << out_dir_path << "/" << i << ".pts";
+		objects[i].save(oss.str());
+	}
+
+	DGP_CONSOLE << "Objects saved to "<< out_dir_path << " directory" ;
 }
