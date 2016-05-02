@@ -71,6 +71,7 @@ class PointCloud
 
     bool loadISM_BIN(std::string const & path_);
     bool extract_objects(std::string const & out_dir_path);
+    bool extract_labels(std::string const & out_dir_path);
 
   private:
     /** Recompute the bounding box. */

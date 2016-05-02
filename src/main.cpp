@@ -59,8 +59,10 @@ main(int argc, char * argv[])
   if (in_path.substr(in_path.find_last_of(".") + 1) == "bin" )
 	  if (!pcloud.loadISM_BIN(in_path))
 		  return -1;
-	  else
+	  else {
 		  pcloud.extract_objects("/tmp/objects");
+		  pcloud.extract_labels("/tmp/labels");
+	  }
 
   DGP_CONSOLE << "Read " << pcloud.numPoints() << " points from " << in_path;
 
