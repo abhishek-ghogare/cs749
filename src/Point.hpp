@@ -14,6 +14,7 @@ class Point
     Vector3 normal;
     int64 label_index;
     int64 object_index;
+    std::vector<float32> features;
 
     /** Default constructor. */
     Point() {}
