@@ -378,18 +378,27 @@ bool
 PointCloud::extract_objects(std::string const & out_dir_path)
 {
 	std::vector<PointCloud> objects(nobjects);
+	std::vector<int64> object_labels(nobjects);
 
 
 	DGP_CONSOLE << "Extracting "<< nobjects << " objects from point cloud" ;
 
 	for ( int i=0 ; i<points.size() ; i++) {
+		if (objects[int(points[i].object_index)].numPoints()!=0) {
+			if (object_labels[int(points[i].object_index)] != points[i].label_index)
+				DGP_ERROR << "Different labels for same object";
+		}
+		else
+			object_labels[int(points[i].object_index)] = points[i].label_index;
+
+
 		objects[int(points[i].object_index)].addPoint(points[i]);
 	}
 
 	DGP_CONSOLE << "Objects extracted from point cloud, now saving to files" ;
 	for ( int i=0 ; i<nobjects ; i++ ) {
 		std::ostringstream oss;
-		oss << out_dir_path << "/" << i << ".pts";
+		oss << out_dir_path << "/" << "label_" << object_labels[i] << "_object_" << i << ".pts";
 		objects[i].save(oss.str());
 	}
 
