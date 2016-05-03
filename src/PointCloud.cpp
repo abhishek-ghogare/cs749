@@ -301,14 +301,18 @@ PointCloud::loadISM_BIN(std::string const & path_)
   // Do loading
   BinaryInputStream in(path_, Endianness::LITTLE);
 
-  long nlabels = in.readInt64();
-  long nobjects = in.readInt64();
+  nlabels = in.readInt64();
+  nobjects = in.readInt64();
   long npoints = in.readInt64();
 
   DGP_CONSOLE << "PointCloud: '" << path_ << "' has " << npoints << " points, " << nlabels << " labels and " << nobjects
                << " objects";
 
   points.resize((size_t)npoints);
+
+  std::vector<int> object_pts_count(nobjects);
+  std::vector<int> labels_pts_count(nlabels);
+
   int num_features = 0;
 
   for (int i = 0; i < points.size(); ++i)
@@ -317,6 +321,9 @@ PointCloud::loadISM_BIN(std::string const & path_)
 
     p.label_index = in.readInt64();
     p.object_index = in.readInt64();
+
+    object_pts_count[p.object_index]++;
+    labels_pts_count[p.label_index]++;
 
     p.position[0] = in.readFloat32();
     p.position[1] = in.readFloat32();
@@ -353,5 +360,69 @@ PointCloud::loadISM_BIN(std::string const & path_)
       p.features[j] = in.readFloat32();
   }
 
+  DGP_CONSOLE << "\n\n\n\n\n\nObject points count ";
+  for ( int i=0 ; i<object_pts_count.size() ; i++ ){
+	  std::cout << object_pts_count[i] << "\t\t";
+  }
+  DGP_CONSOLE << "\n\n\n\n\n\nLabels points count ";
+  for ( int i=0 ; i<labels_pts_count.size() ; i++ ){
+	  std::cout << labels_pts_count[i] << "\t\t";
+  }
+
+
   return true;
+}
+
+
+bool
+PointCloud::extract_objects(std::string const & out_dir_path)
+{
+	std::vector<PointCloud> objects(nobjects);
+	std::vector<int64> object_labels(nobjects);
+
+
+	DGP_CONSOLE << "Extracting "<< nobjects << " objects from point cloud" ;
+
+	for ( int i=0 ; i<points.size() ; i++) {
+		if (objects[int(points[i].object_index)].numPoints()!=0) {
+			if (object_labels[int(points[i].object_index)] != points[i].label_index)
+				DGP_ERROR << "Different labels for same object";
+		}
+		else
+			object_labels[int(points[i].object_index)] = points[i].label_index;
+
+
+		objects[int(points[i].object_index)].addPoint(points[i]);
+	}
+
+	DGP_CONSOLE << "Objects extracted from point cloud, now saving to files" ;
+	for ( int i=0 ; i<nobjects ; i++ ) {
+		std::ostringstream oss;
+		oss << out_dir_path << "/" << "label_" << object_labels[i] << "_object_" << i << ".pts";
+		objects[i].save(oss.str());
+	}
+
+	DGP_CONSOLE << "Objects saved to "<< out_dir_path << " directory" ;
+}
+
+bool
+PointCloud::extract_labels(std::string const & out_dir_path)
+{
+	std::vector<PointCloud> labels(nlabels);
+
+
+	DGP_CONSOLE << "Extracting "<< nlabels << " nlabels from point cloud" ;
+
+	for ( int i=0 ; i<points.size() ; i++) {
+		labels[int(points[i].label_index)].addPoint(points[i]);
+	}
+
+	DGP_CONSOLE << "Labels extracted from point cloud, now saving to files" ;
+	for ( int i=0 ; i<nobjects ; i++ ) {
+		std::ostringstream oss;
+		oss << out_dir_path << "/" << i << ".pts";
+		labels[i].save(oss.str());
+	}
+
+	DGP_CONSOLE << "Labels saved to "<< out_dir_path << " directory" ;
 }
