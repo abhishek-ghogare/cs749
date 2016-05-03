@@ -57,6 +57,7 @@ class PointCloud
 
     /** Save the point cloud to a disk file. */
     bool save(std::string const & path) const;
+    bool saveFeatures(std::string const & path) const;
 
     /** Draw the point cloud using a render-system. */
     void draw(Graphics::RenderSystem & rs, Real normal_len = -1, ColorRGBA const & color = ColorRGB(0.5, 0.5, 0.5)) const;

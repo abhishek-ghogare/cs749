@@ -85,6 +85,48 @@ PointCloud::save(std::string const & path) const
   return true;
 }
 
+bool
+PointCloud::saveFeatures(std::string const & path) const
+{
+  std::ofstream out(path.c_str(), std::ios::binary);
+  if (!out)
+  {
+	DGP_ERROR << "Could not open file for writing: " << path;
+	return false;
+  }
+
+  // Store metadata
+  /*
+   * 	label-index
+		object-index
+		height
+		f12 f13 f23
+		nfeatures
+		feature1 feature2 feature3 ... feature20
+   */
+  std::vector<float32> features;
+  if (this->points.size() > 0) {
+
+	  features.resize(points[0].features.size());
+
+  }
+
+  for (size_t i = 0; i < points.size(); ++i)
+  {
+	Vector3 const & p = points[i].getPosition();
+	Vector3 const & n = points[i].getNormal();
+	out << points[i].label_index << ' ' << points[i].object_index << ' ';
+	out << p[0] << ' ' << p[1] << ' ' << p[2] << ' ' << n[0] << ' ' << n[1] << ' ' << n[2] << ' ';
+	for (int j=0 ; j<points[i].features.size() ; j++) {
+		out << points[i].features[j] << ' ';
+	}
+	out << '\n';
+  }
+
+  return true;
+}
+
+
 Graphics::Shader *
 createPointShader(Graphics::RenderSystem & rs)
 {
@@ -396,10 +438,10 @@ PointCloud::extract_objects(std::string const & out_dir_path)
 	}
 
 	DGP_CONSOLE << "Objects extracted from point cloud, now saving to files" ;
-	for ( int i=0 ; i<nobjects ; i++ ) {
+	for ( int i=1 ; i<nobjects ; i++ ) {
 		std::ostringstream oss;
 		oss << out_dir_path << "/" << "label_" << object_labels[i] << "_object_" << i << ".pts";
-		objects[i].save(oss.str());
+		objects[i].saveFeatures(oss.str());
 	}
 
 	DGP_CONSOLE << "Objects saved to "<< out_dir_path << " directory" ;
@@ -418,10 +460,10 @@ PointCloud::extract_labels(std::string const & out_dir_path)
 	}
 
 	DGP_CONSOLE << "Labels extracted from point cloud, now saving to files" ;
-	for ( int i=0 ; i<nobjects ; i++ ) {
+	for ( int i=1 ; i<nobjects ; i++ ) {
 		std::ostringstream oss;
 		oss << out_dir_path << "/" << i << ".pts";
-		labels[i].save(oss.str());
+		labels[i].saveFeatures(oss.str());
 	}
 
 	DGP_CONSOLE << "Labels saved to "<< out_dir_path << " directory" ;
