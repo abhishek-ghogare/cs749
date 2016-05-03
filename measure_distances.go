@@ -93,27 +93,25 @@ func main() {
         lbl_obj[ob.label] = append(lbl_obj[ob.label], ob)
     }
     */
-
+/*
     os.RemoveAll("/tmp/distances/")
-    os.MkdirAll("/tmp/distances/",0777)
+    os.MkdirAll("/tmp/distances/",0777)*/
+
+    filename := "/tmp/distances.data"
+    os.Remove(filename)
+
+    f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
+    writeToFile := func(line string){
+        if _, err = f.WriteString(line); err != nil {
+            panic(err)
+        }
+    }
 
     for _, ob1 := range objects {
-        filename := "/tmp/distances/"+"distances_label_" + strconv.Itoa(ob1.label) + "_object_" + strconv.Itoa(ob1.object)+ ".data"
-        os.Remove(filename)
-
-        writeToFile := func(line string){
-            f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
-            if err != nil {
-                panic(err)
-            }
-
-            defer f.Close()
-
-            if _, err = f.WriteString(line); err != nil {
-                panic(err)
-            }
-        }
-
         for  _, ob2 := range objects {
             if ob1.object == ob2.object {
                 continue
